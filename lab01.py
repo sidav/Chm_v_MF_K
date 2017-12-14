@@ -12,7 +12,7 @@ LST = open("schrodinger-2b.txt", "wt")
 
 # potential function
 def U(x):
-    return v0 * erf(x) if abs(x) < L else W
+    return float((-1 + (x + L) / (2 * L)) if abs(x) < L else W)  # это типа v(x)
     # return v0 * erf(abs(x))
 
 # function (13)
