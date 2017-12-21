@@ -6,7 +6,7 @@ from scipy.special import genlaguerre
 from math import erf
 import matplotlib.pyplot as plt
 import scipy.integrate as integrate
-global r, n, Psi, Fi, X, XX
+global sew_node_forw, n, Psi, Fi, X, XX
 
 LST = open("schrodinger-2b.txt", "wt")
 
@@ -38,7 +38,7 @@ def system2(cond2, XX):
 
 # calculation of f (eq. 18; difference of derivatives)
 def f_fun(e):
-    global r, n, Psi, Fi, X, XX, eee
+    global sew_node_forw, n, Psi, Fi, X, XX, eee
     eee = e
     """
     Cauchy problem ("forward")
@@ -66,26 +66,26 @@ def f_fun(e):
     big = p1 if p1 > p2 else p2
     # scaling of Psi
     Psi[:] = Psi[:]/big
-    # mathematical scaling of Fi for F[rr]=Psi[r]
-    coef = Psi[r]/Fi[rr]
+    # mathematical scaling of Fi for F[sew_node_backw]=Psi[r]
+    coef = Psi[sew_node_forw]/Fi[sew_node_backw]
     Fi[:] = coef * Fi[:]
     # calculation of f(E) in node of sewing
     curve1 = interp1d(X, Psi, kind='cubic', bounds_error=False, fill_value="extrapolate")
     curve2 = interp1d(XX, Fi, kind='cubic', bounds_error=False, fill_value="extrapolate")
-    der1 = derivative(curve1, X[r], dx=1.e-6)
-    der2 = derivative(curve2, XX[rr], dx=1.e-6)
+    der1 = derivative(curve1, X[sew_node_forw], dx=1.e-6)
+    der2 = derivative(curve2, XX[sew_node_backw], dx=1.e-6)
     f = der1-der2
     return f
 
 
 def m_bis(x1, x2, tol):
-    global r, n
+    global sew_node_forw, n
     if f_fun(e=x2)*f_fun(e=x1) > 0.0:
-        print("ERROR: f_fun(e=x2, r, n)*f_fun(e=x1, r, n) > 0")
+        print("ERROR: f_fun(e=x2, sew_node_forw, n)*f_fun(e=x1, sew_node_forw, n) > 0")
         print("x1=", x1)
         print("x2=", x2)
-        print("f_fun(e=x1, r=r, n=n)=", f_fun(e=x1))
-        print("f_fun(e=x2, r=r, n=n)=", f_fun(e=x2))
+        print("f_fun(e=x1, r=sew_node_forw, n=n)=", f_fun(e=x1))
+        print("f_fun(e=x2, r=sew_node_forw, n=n)=", f_fun(e=x2))
         exit()
     while abs(x2-x1) > tol:
         xr = (x1+x2)/2.0
@@ -119,7 +119,7 @@ def plotting_f():
 
 
 def plotting_wf(e):
-    global r, n, Psi, Fi, X, XX
+    global sew_node_forw, n, Psi, Fi, X, XX
     ff = f_fun(e)
     plt.axis([A, B, -3.0, W])
     Upot = np.array([U(X[i]) for i in np.arange(n)])
@@ -132,7 +132,7 @@ def plotting_wf(e):
     plt.ylabel("Psi(x), Fi(x), U(x)", fontsize=18, color="k")
     plt.grid(True)
     plt.legend(fontsize=16, shadow=True, fancybox=True, loc='upper right')
-    plt.plot([X[r]], [Psi[r]], color='red', marker='o', markersize=7)
+    plt.plot([X[sew_node_forw]], [Psi[sew_node_forw]], color='red', marker='o', markersize=7)
     string1 = "E    = " + format(e, "10.7f")
     string2 = "f(E) = " + format(ff, "10.3e")
     plt.text(-4.0, 2.7, string1, fontsize=14, color='black')
@@ -216,16 +216,16 @@ W = 3.0
 X  = np.linspace(A, B, n)  # forward
 XX = np.linspace(B, A, n)  # backwards
 # node of sewing
-r = (n-1)*3//4      # forward
-rr = n-r-1          # backwards
-print("r=", r)
-print("r=", r, file=LST)
-print("rr=", rr)
-print("rr=", rr, file=LST)
-print("X[r]=", X[r])
-print("X[r]=", X[r], file=LST)
-print("XX[rr]=", XX[rr])
-print("XX[rr]=", XX[rr], file=LST)
+sew_node_forw = (n-1)*3//4      # forward
+sew_node_backw = n-sew_node_forw-1          # backwards
+print("r=", sew_node_forw)
+print("r=", sew_node_forw, file=LST)
+print("sew_node_backw=", sew_node_backw)
+print("sew_node_backw=", sew_node_backw, file=LST)
+print("X[r]=", X[sew_node_forw])
+print("X[r]=", X[sew_node_forw], file=LST)
+print("XX[sew_node_backw]=", XX[sew_node_backw])
+print("XX[sew_node_backw]=", XX[sew_node_backw], file=LST)
 # plot of f(e)
 e1 = U0+0.0005
 e2 = 1.0
