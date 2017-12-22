@@ -64,9 +64,9 @@ def f_fun(e):
     p1 = np.abs(Psi).max()
     p2 = np.abs(Psi).min()
     big = p1 if p1 > p2 else p2
-    # scaling of Psi
+    # scaling of Psi #1
     Psi[:] = Psi[:]/big
-    # mathematical scaling of Fi for F[rr]=Psi[r]
+    # mathematical scaling of Fi for F[rr]=Psi[r] #2
     coef = Psi[r]/Fi[rr]
     Fi[:] = coef * Fi[:]
     # calculation of f(E) in node of sewing
@@ -176,8 +176,8 @@ def plotting_final_results(numFun, title):
     NguadRoot = pow(N, 0.5)
     normedFun = [i / NguadRoot for i in numFun]
     probDensity = [i * i for i in normedFun]
-    # normedIntegral = integral(probDensity)
-    # print("Normed integral:", normedIntegral)
+    normedIntegral = integralNum(probDensity) #3
+    print("Normed integral:", normedIntegral)
     plt.axis([A, B, -1.0, 2.0])
     plt.plot(X, normedFun, 'b-', linewidth=2.0, label="Psi'(x)")
     plt.plot(X, probDensity, 'r-', linewidth=2.0, label="p(x)")
