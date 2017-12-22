@@ -78,7 +78,7 @@ def f_fun(e):
     return f
 
 
-def m_bis(x1, x2, tol):
+def bisection_method(x1, x2, epsylon):
     global r, n
     if f_fun(e=x2)*f_fun(e=x1) > 0.0:
         print("ERROR: f_fun(e=x2, r, n)*f_fun(e=x1, r, n) > 0")
@@ -87,7 +87,7 @@ def m_bis(x1, x2, tol):
         print("f_fun(e=x1, r=r, n=n)=", f_fun(e=x1))
         print("f_fun(e=x2, r=r, n=n)=", f_fun(e=x2))
         exit()
-    while abs(x2-x1) > tol:
+    while abs(x2-x1) > epsylon:
         xr = (x1+x2)/2.0
         if f_fun(e=x2)*f_fun(e=xr) < 0.0:
             x1 = xr
@@ -233,13 +233,12 @@ e2 = 1.0
 print("e1=", e1, "   e2=", e2)
 print("e1=", e1, "   e2=", e2, file=LST)
 ne = 151
-# ne = 501
 print("ne=", ne)
 print("ne=", ne, file=LST)
 ee = np.linspace(e1, e2, ne)
 af = np.zeros(ne, dtype=float)
 limit = 5.0
-tol = 1.0e-7
+epsylon = 1.0e-7
 energy = []
 func = []
 ngr = 0
@@ -255,7 +254,7 @@ for i in np.arange(ne):
         if Log1 and Log2:
             energy1 = ee[i-1]
             energy2 = ee[i]
-            eval = m_bis(energy1, energy2, tol)
+            eval = bisection_method(energy1, energy2, epsylon)
             print("eval = {:12.5e}".format(eval))
             dummy = plotting_wf(eval)
             energy.append(eval)
@@ -276,4 +275,4 @@ for i in np.arange(nroots):
     print(stroka.format(i, energy[i]), file=LST)
 
 plotting_final_results(func[0], "Base state")
-plotting_final_results(func[2], "2nd state")
+plotting_final_results(func[3], "3rd state")
