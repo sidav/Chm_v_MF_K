@@ -1,4 +1,5 @@
 import numpy as np
+from math import sqrt
 from scipy.integrate import odeint
 from scipy.misc import derivative
 from scipy.interpolate import interp1d
@@ -195,6 +196,70 @@ def plotting_final_results(numFun, title):
     plt.savefig(name, dpi=300)
     plt.show()
 
+####### EXPERIMENTAL  ###################################
+def quantum_avg(_psi):
+    global r, n, X, XX
+    ff = f_fun(e)
+    print("f=", ff)
+    plt.axis([A, B, -1, W])
+    Upot = np.array([U(X[i]) for i in np.arange(n)])
+
+    coefPsi = average_value(_psi, _psi)
+    _psi[:] = _psi[:] / sqrt(coefPsi[0])
+    normPsi = average_value(_psi, _psi)
+    print("integrate _psi = ", normPsi[0])
+
+    averageT = average_value(_psi, operT(_psi, X))
+    print("<T> = ", averageT[0])
+
+    UPsiValue = []
+    for ind in range(len(X)):
+        UPsiValue.append(_psi[ind] * U(X[ind]))
+    averageU = average_value(_psi, UPsiValue)
+    print("<U> = ", averageU[0])
+
+
+def quantum_average(_psi):
+    averageT = average_value(_psi, operT(_psi, X))
+    print("<T> = ", averageT[0])
+
+    UPsiValue = []
+    for ind in range(len(X)):
+        UPsiValue.append(_psi[ind] * U(X[ind]))
+    averageU = average_value(_psi, UPsiValue)
+    print("<U> = ", averageU[0])
+    print("<T> + <U> = ", averageT[0] + averageU[0])
+
+
+def average_value(psi, oper_value):
+    global X
+    value = []
+    for ind in range(len(psi)):
+        value.append(psi[ind] * oper_value[ind])
+
+    fun = interp1d(X, value, kind='cubic')
+    result = integrate.quad(fun, A, B)
+    return result
+
+
+def operT(funF, X):
+    localX = [X[0] - 2 * 1.e-6]
+    for x in X:
+        localX.append(x)
+    localX.append(X[len(X) - 1] + 2 * 1.e-6)
+
+    localFunF = [0]
+    for val in funF:
+        localFunF.append(val)
+    localFunF.append(0)
+
+    fun = interp1d(localX, localFunF, kind='cubic')
+    der = []
+    for x in X:
+        der.append(-1 / 2 * derivative(fun, x, dx=1.e-6, n=2, order=5))
+    return der
+
+##############################################################
 
 # initial data (atomic units)
 clength = 0.5292
@@ -275,4 +340,6 @@ for i in np.arange(nroots):
     print(stroka.format(i, energy[i]), file=LST)
 
 plotting_final_results(func[0], "Base state")
+quantum_avg(func[0])
 plotting_final_results(func[3], "3rd state")
+quantum_avg(func[3])
